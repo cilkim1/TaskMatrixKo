@@ -30,6 +30,9 @@ from langchain.agents.initialize import initialize_agent
 from langchain.agents.tools import Tool
 from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain.llms.openai import OpenAI
+from doctran import Doctran
+
+import asyncio
 
 # Grounding DINO
 import groundingdino.datasets.transforms as T
@@ -152,7 +155,7 @@ Visual ChatGPT는 많은 양의 텍스트와 image를 처리하고 이해할 수
 
 Visual ChatGPT는 다음과 같은 도구들에 액세스할 수 있습니다:"""
 
-VISUAL_CHATGPT_FORMAT_INSTRUCTIONS_KO = """도구를 사용하려면 다음 형식을 사용해 주세요:
+VISUAL_CHATGPT_FORMAT_INSTRUCTIONS_KO = """도구를 사용했다면 반드시 다음 형식을 반드시 사용해야 합니다:
 
 ```
 Thought: Do I need to use a tool? Yes
@@ -161,7 +164,7 @@ Action Input: the input to the action
 Observation: the result of the action
 ```
 
-인간에게 답변할 때 또는 도구를 사용하지 않아도 되는 경우 다음 형식을 반드시 사용해야 합니다:
+반대로 도구를 사용하지 않았다면 다음 형식을 반드시 사용해야 합니다:
 
 ```
 Thought: Do I need to use a tool? No
@@ -1553,9 +1556,10 @@ class ConversationBot:
             place = "输入文字并回车，或者上传图片"
             label_clear = "清除"
         else:
-            PREFIX, FORMAT_INSTRUCTIONS, SUFFIX = VISUAL_CHATGPT_PREFIX_KO, VISUAL_CHATGPT_FORMAT_INSTRUCTIONS_KO, VISUAL_CHATGPT_SUFFIX_KO
+            PREFIX, FORMAT_INSTRUCTIONS, SUFFIX = VISUAL_CHATGPT_PREFIX_KO, VISUAL_CHATGPT_FORMAT_INSTRUCTIONS_KO, VISUAL_CHATGPT_SUFFIX_KO  # VISUAL_CHATGPT_PREFIX, VISUAL_CHATGPT_FORMAT_INSTRUCTIONS, VISUAL_CHATGPT_SUFFIX
             place = "텍스트를 입력하고 엔터 키를 누르거나 image를 업로드"
             label_clear = "지우기"
+        self.doctran = Doctran(openai_api_key='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', openai_model='text-davinci-003')
         self.agent = initialize_agent(
             self.tools,
             self.llm,
@@ -1567,9 +1571,11 @@ class ConversationBot:
                           'suffix': SUFFIX}, )
         return gr.update(visible = True), gr.update(visible = False), gr.update(placeholder=place), gr.update(value=label_clear)
 
-    def run_text(self, text, state):
+    async def run_text(self, text, state):
         self.agent.memory.buffer = cut_dialogue_history(self.agent.memory.buffer, keep_last_n_words=500)
-        res = self.agent({"input": text.strip()})
+        document = self.doctran.parse(content=text.strip())
+        document = await document.translate(language="english").execute()
+        res = self.agent({"input": document.transformed_content})
         res['output'] = res['output'].replace("\\", "/")
         response = re.sub('(image/[-\w]*.png)', lambda m: f'![](file={m.group(0)})*{m.group(0)}*', res['output'])
         state = state + [(text, response)]
