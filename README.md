@@ -12,7 +12,7 @@ https://github.com/cilkim1/TaskMatrixKo/assets/10611463/d5ee11eb-1521-4a99-bfef-
 
 ## 사용 방법
 
-1. 먼저 TaskMatrix의 최신 버전을 [[여기](TaskMatrix-다운로드-링크)](https://github.com/microsoft/TaskMatrix)에서 다운로드하십시오.
+1. 먼저 TaskMatrix의 최신 버전을 [여기](https://github.com/microsoft/TaskMatrix)에서 다운로드하십시오.
 
 2. 다운로드한 TaskMatrix의 디렉토리로 이동하십시오.
 
