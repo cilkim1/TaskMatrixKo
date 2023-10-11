@@ -6,7 +6,7 @@ TaskMatrix의 한국어 버전은 GPT-3.5 모델을 활용하여 작성된 프�
 
 ## 예시 비디오
 
-[https://github.com/cilkim1/TaskMatrixKo/ko](https://github.com/cilkim1/TaskMatrixKo/blob/main/kovisualchatgpt.mp4)
+https://youtu.be/WfxQIyezEOc
 
 
 ## 사용 방법
